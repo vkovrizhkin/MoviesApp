@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.ProgressBar
 import android.widget.TextView
 import com.kovrizhkin.moviesapp.MainContract
 import com.kovrizhkin.moviesapp.R
@@ -31,12 +32,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         recViewAdapter = MoviesRecViewAdapter(this, movieList, null, null)
         layoutManager = LinearLayoutManager(this)
 
+        view_flipper.displayedChild = 1
         movies_rec_view.adapter = recViewAdapter
         movies_rec_view.layoutManager = layoutManager
 
         presenter = MainPresenter(this)
 
-        presenter.loadMovies()
+        loadAllMovies()
 
         search_edit_text.setOnEditorActionListener { v, actionId, _ ->
 
@@ -54,9 +56,36 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     }
 
+    private fun loadAllMovies() {
+        if (movieList.isEmpty()) {
+            view_flipper.displayedChild = 0
+        } else {
+            progress_horizontal.visibility = ProgressBar.VISIBLE
+        }
+
+        presenter.loadMovies()
+    }
+
+    fun searchMovies() {
+
+    }
+
+    fun showEmptySearchResult() {
+
+    }
+
     override fun showResult(result: List<Movie>) {
-        movieList.clear()
-        movieList.addAll(result)
-        recViewAdapter.notifyDataSetChanged()
+        if(movieList.isNotEmpty()){
+            movieList.addAll(result)
+            recViewAdapter.notifyDataSetChanged()
+            progress_horizontal.visibility = ProgressBar.INVISIBLE
+
+        } else {
+            movieList.clear()
+            movieList.addAll(result)
+            view_flipper.displayedChild = 1
+        }
+
+
     }
 }
