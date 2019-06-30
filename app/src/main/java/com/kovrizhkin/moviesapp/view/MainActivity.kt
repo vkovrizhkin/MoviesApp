@@ -45,14 +45,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             val searchQuery = v.text.toString()
             if (actionId == EditorInfo.IME_ACTION_SEARCH && searchQuery.isNotEmpty()) {
 
-                presenter.searchMovies(searchQuery)
-
+                searchMovies(searchQuery)
                 val imm = v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(v.windowToken, 0)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
         }
+
+        swipe_to_refresh.setOnRefreshListener { onSwipe() }
 
     }
 
@@ -66,8 +67,26 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         presenter.loadMovies()
     }
 
-    fun searchMovies() {
 
+
+    private fun onSwipe() {
+        swipe_to_refresh.isRefreshing = false
+        val searchQuery = search_edit_text.text.toString()
+        if (searchQuery.isEmpty()) {
+            loadAllMovies()
+        } else {
+            searchMovies(searchQuery)
+        }
+
+    }
+
+    private fun searchMovies(searchQuery: String) {
+        if (movieList.isEmpty()) {
+            view_flipper.displayedChild = 0
+        } else {
+            progress_horizontal.visibility = ProgressBar.VISIBLE
+        }
+        presenter.searchMovies(searchQuery)
     }
 
     fun showEmptySearchResult() {
@@ -75,15 +94,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showResult(result: List<Movie>) {
-        if(movieList.isNotEmpty()){
+        if (movieList.isEmpty()) {
             movieList.addAll(result)
             recViewAdapter.notifyDataSetChanged()
-            progress_horizontal.visibility = ProgressBar.INVISIBLE
+            view_flipper.displayedChild = 1
+
 
         } else {
             movieList.clear()
             movieList.addAll(result)
-            view_flipper.displayedChild = 1
+            recViewAdapter.notifyDataSetChanged()
+            progress_horizontal.visibility = ProgressBar.INVISIBLE
         }
 
 
