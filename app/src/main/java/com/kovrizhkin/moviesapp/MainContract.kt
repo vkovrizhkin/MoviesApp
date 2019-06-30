@@ -18,5 +18,7 @@ interface MainContract {
 
     interface View {
         fun showResult(result: List<Movie>)
+        fun onError()
+        fun showEmptySearchResult()
     }
 }

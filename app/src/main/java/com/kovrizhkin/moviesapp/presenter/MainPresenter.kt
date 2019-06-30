@@ -12,15 +12,21 @@ class MainPresenter(private val view: MainContract.View) : Presenter.GetMoviesLi
     }
 
     override fun onGetMoviesError(t: Throwable) {
-        val r = t
+        view.onError()
     }
 
     override fun onSearchMoviesSuccess(result: Result) {
-        view.showResult(result.results)
+        val movies = result.results
+        if (movies.isEmpty()) {
+            view.showEmptySearchResult()
+        } else {
+            view.showResult(movies)
+        }
+
     }
 
     override fun onSearchMoviesError(t: Throwable) {
-        val r = t
+        view.onError()
     }
 
 

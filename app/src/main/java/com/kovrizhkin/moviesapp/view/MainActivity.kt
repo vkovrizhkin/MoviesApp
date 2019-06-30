@@ -1,19 +1,28 @@
 package com.kovrizhkin.moviesapp.view
 
 import android.content.Context
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.design.widget.Snackbar
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
-import android.widget.TextView
 import com.kovrizhkin.moviesapp.MainContract
 import com.kovrizhkin.moviesapp.R
 import com.kovrizhkin.moviesapp.model.pojo.Movie
 import com.kovrizhkin.moviesapp.presenter.MainPresenter
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.error_banner_layout.*
+
+/* TODO что не успел
+*  - отрефакторить вёрстку, вынеся стили и макеты отдельно
+*  - сохранить "любимые" в SharedPreference
+*  - нормально распарсить дату релиза
+*  - изменения при смене конфигурации вроде можно было с onSaveInstanceState сделать, а индекс сохраняет layoutManager
+*  - колбэк тапа пробросить в ресайклер вью
+*
+* */
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
@@ -35,6 +44,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         view_flipper.displayedChild = 1
         movies_rec_view.adapter = recViewAdapter
         movies_rec_view.layoutManager = layoutManager
+
+        refresh_btn.setOnClickListener { loadAllMovies() }
 
         presenter = MainPresenter(this)
 
@@ -68,7 +79,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
 
-
     private fun onSwipe() {
         swipe_to_refresh.isRefreshing = false
         val searchQuery = search_edit_text.text.toString()
@@ -89,9 +99,28 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         presenter.searchMovies(searchQuery)
     }
 
-    fun showEmptySearchResult() {
-
+    override fun onError() {
+        // todo вынести в ресурсы строчку (тоже самое с сообщением о пустом результате поиска)
+        showSnackbar("Проверьте соединение с интернетом и попробуйте ещё раз")
+        if (movieList.isEmpty()) {
+            showEmptyResult()
+        }
+        progress_horizontal.visibility = ProgressBar.INVISIBLE
     }
+
+    private fun showSnackbar(text: String) {
+        Snackbar.make(container, text, Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun showEmptySearchResult() {
+        movieList.clear()
+        view_flipper.displayedChild = 3
+    }
+
+    private fun showEmptyResult() {
+        view_flipper.displayedChild = 2
+    }
+
 
     override fun showResult(result: List<Movie>) {
         if (movieList.isEmpty()) {
@@ -99,14 +128,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             recViewAdapter.notifyDataSetChanged()
             view_flipper.displayedChild = 1
 
-
         } else {
             movieList.clear()
             movieList.addAll(result)
+
             recViewAdapter.notifyDataSetChanged()
-            progress_horizontal.visibility = ProgressBar.INVISIBLE
         }
 
+        progress_horizontal.visibility = ProgressBar.INVISIBLE
 
     }
 }
