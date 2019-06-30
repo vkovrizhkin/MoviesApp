@@ -1,5 +1,6 @@
 package com.kovrizhkin.moviesapp
 
+import com.kovrizhkin.moviesapp.model.pojo.Movie
 import com.kovrizhkin.moviesapp.model.pojo.Result
 
 interface MainContract {
@@ -13,5 +14,9 @@ interface MainContract {
             fun onSearchMoviesSuccess(result: Result)
             fun onSearchMoviesError(t: Throwable)
         }
+    }
+
+    interface View {
+        fun showResult(result: List<Movie>)
     }
 }

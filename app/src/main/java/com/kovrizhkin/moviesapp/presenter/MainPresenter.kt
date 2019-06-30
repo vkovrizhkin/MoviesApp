@@ -1,13 +1,14 @@
 package com.kovrizhkin.moviesapp.presenter
 
+import com.kovrizhkin.moviesapp.MainContract
 import com.kovrizhkin.moviesapp.MainContract.Presenter
 import com.kovrizhkin.moviesapp.model.api.Api
 import com.kovrizhkin.moviesapp.model.pojo.Result
 
 
-class MainPresenter: Presenter.GetMoviesListener, Presenter.SearchMoviesListener {
+class MainPresenter(private val view: MainContract.View) : Presenter.GetMoviesListener, Presenter.SearchMoviesListener {
     override fun onGetMoviesSuccess(result: Result) {
-        val r = result
+        view.showResult(result.results)
     }
 
     override fun onGetMoviesError(t: Throwable) {
@@ -15,7 +16,7 @@ class MainPresenter: Presenter.GetMoviesListener, Presenter.SearchMoviesListener
     }
 
     override fun onSearchMoviesSuccess(result: Result) {
-        val r = result
+        view.showResult(result.results)
     }
 
     override fun onSearchMoviesError(t: Throwable) {
@@ -23,7 +24,7 @@ class MainPresenter: Presenter.GetMoviesListener, Presenter.SearchMoviesListener
     }
 
 
-    fun loadMovies(){
+    fun loadMovies() {
         Api.getMovies(this)
     }
 
