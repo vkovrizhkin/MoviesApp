@@ -7,14 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.kovrizhkin.moviesapp.R
+import com.kovrizhkin.moviesapp.common.utils.DateHelper
 import com.kovrizhkin.moviesapp.model.pojo.Movie
 import kotlinx.android.synthetic.main.movie_list_item.view.*
 
 class MoviesRecViewAdapter(
-        private val context: Context,
-        private val movieList: List<Movie>,
-        val onPressItem: ((Movie) -> Any)?,
-        val onPressFavorite: ((Movie) -> Any)?
+    private val context: Context,
+    private val movieList: List<Movie>,
+    val onPressItem: ((Movie) -> Any)?,
+    val onPressFavorite: ((Movie) -> Any)?
 ) : RecyclerView.Adapter<MoviesRecViewAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layout = LayoutInflater.from(context).inflate(R.layout.movie_list_item, parent, false) as View
@@ -29,11 +30,13 @@ class MoviesRecViewAdapter(
         holder.titleTextView.text = movie.title
         holder.descriptionTextView.text = movie.overview
 
+        holder.dateTextView.text = DateHelper.formatDateToDisplay(movie.release_date)
+
         Glide
-                .with(context)
-                .load("https://image.tmdb.org/t/p/w200" + movie.poster_path)
-                .centerCrop()
-                .into(holder.image)
+            .with(context)
+            .load("https://image.tmdb.org/t/p/w200" + movie.poster_path)
+            .centerCrop()
+            .into(holder.image)
 
     }
 
