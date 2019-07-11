@@ -40,11 +40,16 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private lateinit var layoutManager: LinearLayoutManager
 
+    private var favorites = mutableListOf<Int>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        presenter = MainPresenter(this)
 
-        recViewAdapter = MoviesRecViewAdapter(this, movieList, null, null)
+        favorites.addAll(presenter.loadFavorites())
+
+        recViewAdapter = MoviesRecViewAdapter(this, movieList, onItemClick, onFavoriteClick, favorites)
         layoutManager = LinearLayoutManager(this)
 
         view_flipper.displayedChild = 1
@@ -53,9 +58,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         refresh_btn.setOnClickListener { loadAllMovies() }
 
-        presenter = MainPresenter(this)
+
 
         loadAllMovies()
+
+
 
         search_edit_text.setOnEditorActionListener { v, actionId, _ ->
 
@@ -71,6 +78,32 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
 
         swipe_to_refresh.setOnRefreshListener { onSwipe() }
+
+    }
+
+    override fun onDestroy() {
+        presenter.saveFavorites(favorites)
+        super.onDestroy()
+    }
+
+    override fun onStop() {
+        presenter.saveFavorites(favorites)
+        super.onStop()
+    }
+
+    private val onItemClick = { movie: Movie ->
+        showSnackbar(movie.title)
+    }
+
+    private val onFavoriteClick = { movie: Movie ->
+
+        val index = favorites.indexOf(movie.id)
+
+        if (index >= 0) {
+            favorites.removeAt(index)
+        } else {
+            favorites.add(movie.id)
+        }
 
     }
 

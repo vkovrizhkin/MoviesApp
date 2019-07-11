@@ -1,7 +1,9 @@
 package com.kovrizhkin.moviesapp.presenter
 
+import android.content.Context
 import com.kovrizhkin.moviesapp.MainContract
 import com.kovrizhkin.moviesapp.MainContract.Presenter
+import com.kovrizhkin.moviesapp.model.SharedPreferenceManager
 import com.kovrizhkin.moviesapp.model.api.Api
 import com.kovrizhkin.moviesapp.model.pojo.Result
 
@@ -37,4 +39,14 @@ class MainPresenter(private val view: MainContract.View) : Presenter.GetMoviesLi
     fun searchMovies(searchText: String) {
         Api.getSearchResults(this, searchText)
     }
+
+    fun saveFavorites(idList: List<Int>) {
+        SharedPreferenceManager.saveFavorites(view as Context, idList)
+    }
+
+    fun loadFavorites(): List<Int> {
+        return SharedPreferenceManager.getFavorites(view as Context)
+    }
+
+
 }
